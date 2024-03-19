@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TodoListService.DbContext;
+using TodoListService.Models;
 
 namespace TodoListService
 {
@@ -31,12 +32,12 @@ namespace TodoListService
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApi(options =>
-                    {
-                        Configuration.Bind("AzureAdB2C", options);
-                    },
-            options => { Configuration.Bind("AzureAdB2C", options); });
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //        .AddMicrosoftIdentityWebApi(options =>
+            //        {
+            //            Configuration.Bind("AzureAdB2C", options);
+            //        },
+            //options => { Configuration.Bind("AzureAdB2C", options); });
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetValue<string>("ConnectionStrings:DefaultConnection")));
@@ -47,6 +48,16 @@ namespace TodoListService
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowOrigin", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+            services.Configure<AppSettingsModel>(Configuration.GetSection("AppSettings"));
             services.AddControllers();
         }
 
@@ -65,7 +76,7 @@ namespace TodoListService
             {
                 app.UseHsts();
             }
-
+            app.UseCors("AllowOrigin");
             app.UseHttpsRedirection();
 
             app.UseRouting();
