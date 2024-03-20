@@ -31,23 +31,23 @@ namespace TodoListService
             // This flag ensures that the ClaimsIdentity claims collection will be built from the claims in the token
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
-            // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
-            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //        .AddMicrosoftIdentityWebApi(options =>
-            //        {
-            //            Configuration.Bind("AzureAdB2C", options);
-            //        },
-            //options => { Configuration.Bind("AzureAdB2C", options); });
+            // Adds Microsoft Identity platform(AAD v2.0) support to protect this Api
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityWebApi(options =>
+                    {
+                        Configuration.Bind("AzureAdB2C", options);
+                    },
+            options => { Configuration.Bind("AzureAdB2C", options); });
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetValue<string>("ConnectionStrings:DefaultConnection")));
+            //services.AddDbContext<ApplicationDbContext>(options =>
+            //    options.UseSqlServer(Configuration.GetValue<string>("ConnectionStrings:DefaultConnection")));
 
-            services.AddIdentity<IdentityUser, IdentityRole>(options =>
-                {
-                    options.User.RequireUniqueEmail = false;
-                })
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
+            //services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            //    {
+            //        options.User.RequireUniqueEmail = false;
+            //    })
+            //    .AddEntityFrameworkStores<ApplicationDbContext>()
+            //    .AddDefaultTokenProviders();
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowOrigin", builder =>

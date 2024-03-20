@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,8 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using Microsoft.WindowsAzure.Storage.Table;
-using TodoListService.Constants;
 using TodoListService.Models;
 using TodoListService.Services;
 
@@ -25,9 +22,9 @@ public class AuthController : ControllerBase
     private readonly MigrationService _service;
     private readonly AppSettingsModel _model;
 
-    public AuthController(UserManager<IdentityUser> userManager, IConfiguration configuration, IOptions<AppSettingsModel> options)
+    public AuthController(/*UserManager<IdentityUser> userManager,*/ IConfiguration configuration, IOptions<AppSettingsModel> options)
     {
-        _userManager = userManager;
+        //_userManager = userManager;
         _configuration = configuration; 
         _service = new MigrationService(options);
         _model = options.Value;
@@ -83,33 +80,48 @@ public class AuthController : ControllerBase
 
         // Execute the retrieve operation.
         //TableResult userMigrationEntity = await table.ExecuteAsync(retrieveOperation);
-        if(ModelState.IsValid)
+        B2CResponseModel outputClaims = new B2CResponseModel("", HttpStatusCode.OK);
+        if (ModelState.IsValid)
         {
-            var user = _userManager.Users.FirstOrDefault(x => x.Email == inputClaims.signInName);
+            //var user = _userManager.Users.FirstOrDefault(x => x.Email == inputClaims.signInName);
+            var user = new IdentityUser();
             if (user != null)
             {
-                await _userManager.CheckPasswordAsync(user, inputClaims.password);
+                //var isPasswordValid = await _userManager.CheckPasswordAsync(user, inputClaims.password);
+                var isPasswordValid = true;
 
-                try
+                if(isPasswordValid)
                 {
                     try
                     {
-                        await _service.MigrateUser(inputClaims, user);
-                        await Task.Delay(1500);
+                        try
+                        {
+                            //await _service.MigrateUser(inputClaims, user);
+                            throw new Exception();
+                        }
+                        catch (Exception ex)
+                        {
+                            outputClaims.needToMigrate = null;
+                            return Ok(outputClaims);
+                        }
+                        outputClaims.needToMigrate = "local";
+                        outputClaims.newPassword = inputClaims.password;
+                        outputClaims.email = inputClaims.signInName;
+                        outputClaims.displayName = "Hiran";
+                        outputClaims.surName = "Herath";
+                        outputClaims.givenName = "Hiran Herath";
+                        return Ok(outputClaims);
                     }
                     catch (Exception ex)
                     {
                         return StatusCode((int)HttpStatusCode.Conflict,
-                            new B2CResponseModel("Can not migrate user", HttpStatusCode.Conflict));
+                            new B2CResponseModel($"User migration error: {ex.Message}", HttpStatusCode.Conflict));
                     }
-
-                    return Ok();
                 }
-                catch (Exception ex)
-                {
-                    return StatusCode((int)HttpStatusCode.Conflict,
-                        new B2CResponseModel($"User migration error: {ex.Message}", HttpStatusCode.Conflict));
-                }
+                
+                return StatusCode((int)HttpStatusCode.Conflict, 
+                    new B2CResponseModel("Password is incorrect", HttpStatusCode.Conflict));
+                
             }
         }
 

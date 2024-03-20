@@ -15,12 +15,13 @@ public class TodoListController : Controller
 {
     const string scopeRequiredByAPI = "tasks.read";
     // In-memory TodoList
-    private static readonly Dictionary<int, Todo> TodoStore = new Dictionary<int, Todo>();
+    private static readonly Dictionary<int, Todo> TodoStore = new();
 
     private readonly IHttpContextAccessor _contextAccessor;
      
     public TodoListController(IHttpContextAccessor contextAccessor)
     {
+        IHttpContextAccessor contextAccessor1;
         this._contextAccessor = contextAccessor;
         string owner = this._contextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value;
 
