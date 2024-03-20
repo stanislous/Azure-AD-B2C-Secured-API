@@ -3,12 +3,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using TodoListService.DbContext;
 using TodoListService.Models;
 
 namespace TodoListService
@@ -39,15 +36,6 @@ namespace TodoListService
                     },
             options => { Configuration.Bind("AzureAdB2C", options); });
 
-            //services.AddDbContext<ApplicationDbContext>(options =>
-            //    options.UseSqlServer(Configuration.GetValue<string>("ConnectionStrings:DefaultConnection")));
-
-            //services.AddIdentity<IdentityUser, IdentityRole>(options =>
-            //    {
-            //        options.User.RequireUniqueEmail = false;
-            //    })
-            //    .AddEntityFrameworkStores<ApplicationDbContext>()
-            //    .AddDefaultTokenProviders();
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowOrigin", builder =>
@@ -57,7 +45,7 @@ namespace TodoListService
                         .AllowAnyHeader();
                 });
             });
-            services.Configure<AppSettingsModel>(Configuration.GetSection("AppSettings"));
+            
             services.AddControllers();
         }
 

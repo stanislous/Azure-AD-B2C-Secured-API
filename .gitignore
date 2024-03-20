@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /TodoListService/appsettings.json
 /Client/appsettings.json
+/IdentityAuthService/appsettings.json
