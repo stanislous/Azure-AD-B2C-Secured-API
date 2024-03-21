@@ -16,7 +16,8 @@ public class B2CResponseModel
     public string displayName { get; set; }
     public string givenName { get; set; }
     public string surName { get; set; }
-    public string phoneNumber { get; set; }
+    public string mobilePhone { get; set; }
+    public string userType { get; set; } //UserType = "Guest"
 
     public B2CResponseModel(string message, HttpStatusCode status)
     {

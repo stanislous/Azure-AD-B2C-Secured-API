@@ -13,29 +13,48 @@ public class UserRepository(IDbProvider provider) : IUserRepository
         throw new NotImplementedException();
     }
 
-    public async Task<User> GetUserDetails(string emailAddress)
+    public async Task<User?> GetUserDetails(string emailAddress)
     {
         try
         {
-            using (var connection = await provider.CreateConnectionAsync())
-            {
-                var query = new StringBuilder();
-                query.Append(@"SELECT 
+            using var connection = await provider.CreateConnectionAsync();
+            var query = new StringBuilder();
+            query.Append(@"SELECT 
                                     UserFirstName, 
                                     UserLastName, 
                                     UserEmailAddress, 
                                     UserPhoneNumber 
                                 FROM Users 
                                 WHERE UserEmailAddress = @EmailAddress AND isMigrated = 'false';");
-                return connection.QueryFirstOrDefault<User>(query.ToString(), new
-                {
-                    EmailAddress = emailAddress
-                });
-            }
+            return connection.QueryFirstOrDefault<User>(query.ToString(), new
+            {
+                EmailAddress = emailAddress
+            });
         }
         catch (Exception ex)
         {
             throw ex;
+        }
+    }
+
+    public async Task<bool> UpdateUserByIsMigrated(string emailAddress)
+    {
+        try
+        {
+            using var connection = await provider.CreateConnectionAsync();
+            var query = new StringBuilder();
+            query.Append(@"UPDATE Users SET
+                                IsMigrated = 'true'
+	                       WHERE 
+                                UserEmailAddress = @EmailAddress;");
+            return connection.ExecuteScalar<bool>(query.ToString(), new
+            {
+                EmailAddress = emailAddress
+            });
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
         }
     }
 

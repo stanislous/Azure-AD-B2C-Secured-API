@@ -16,18 +16,20 @@ public class AuthService(UserManager<IdentityUser> userManager, IUserRepository 
         {
             var isPasswordValid = await userManager.CheckPasswordAsync(user, inputClaims.Password);
             var userDetails = userRepository.GetUserDetails(inputClaims.SignInName).Result;
+            await userRepository.UpdateUserByIsMigrated(inputClaims.SignInName);
 
-            if (isPasswordValid)
+            if (isPasswordValid & userDetails != null)
             {
                 try
                 {
                     outputClaims.needToMigrate = "local";
                     outputClaims.newPassword = inputClaims.Password;
                     outputClaims.email = userDetails.UserEmailAddress;
-                    outputClaims.displayName = userDetails.UserFirstName + " " +userDetails.UserLastName;
+                    outputClaims.displayName = userDetails.UserFirstName + " " + userDetails.UserLastName;
                     outputClaims.surName = userDetails.UserFirstName;
                     outputClaims.givenName = userDetails.UserFirstName;
-                    outputClaims.phoneNumber = userDetails.UserPhoneNumber;
+                    //outputClaims.mobilePhone = userDetails.UserPhoneNumber;
+                    outputClaims.userType = "Guest";
                     return outputClaims;
                 }
                 catch (Exception ex)

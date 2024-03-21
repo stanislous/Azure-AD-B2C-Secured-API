@@ -1,10 +1,7 @@
 ﻿using System.Net;
-using TodoListService.Models;
 using Microsoft.AspNetCore.Mvc;
 using IdentityAuthService.Model;
 using IdentityAuthService.Services;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 
 namespace IdentityAuthService.Controllers;
