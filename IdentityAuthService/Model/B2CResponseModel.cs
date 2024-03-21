@@ -10,7 +10,7 @@ public class B2CResponseModel
     public string userMessage { get; set; }
 
     // Optional claims
-    public string needToMigrate { get; set; }
+    public string? needToMigrate { get; set; }
     public string newPassword { get; set; }
     public string email { get; set; }
     public string displayName { get; set; }
