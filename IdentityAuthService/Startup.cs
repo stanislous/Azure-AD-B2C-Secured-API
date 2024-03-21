@@ -1,4 +1,7 @@
 ﻿using IdentityAuthService.DbContext;
+using IdentityAuthService.Repositories.Implementations;
+using IdentityAuthService.Repositories.Interfaces;
+using IdentityAuthService.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TodoListService.Models;
@@ -24,7 +27,8 @@ namespace IdentityAuthService
             });
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetValue<string>("ConnectionStrings:DefaultConnection")));
-            services.AddSingleton<IDbProvider>(_ => new DbProvider(Configuration.GetValue<string>("AppSettings:ConnectionStrings")!));
+            
+            services.AddSingleton<IDbProvider>(_ => new DbProvider(Configuration.GetValue<string>("ConnectionStrings:DefaultConnection")!));
 
             services.AddIdentity<IdentityUser, IdentityRole>(options =>
                 {
@@ -33,8 +37,10 @@ namespace IdentityAuthService
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.Configure<AppSettingsModel>(Configuration.GetSection("AppSettings"));
+            //services.Configure<AppSettingsModel>(Configuration.GetSection("AppSettings"));
             services.AddControllers();
+            services.AddScoped<AuthService>();
+            services.AddScoped<IUserRepository, UserRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

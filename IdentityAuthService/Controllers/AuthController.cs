@@ -2,6 +2,7 @@
 using TodoListService.Models;
 using Microsoft.AspNetCore.Mvc;
 using IdentityAuthService.Model;
+using IdentityAuthService.Services;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -12,15 +13,11 @@ namespace IdentityAuthService.Controllers;
 [ApiController]
 public class AuthController : ControllerBase
 {
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly IConfiguration _configuration;
-    private readonly AppSettingsModel _model;
+    private readonly AuthService _authService;
 
-    public AuthController(UserManager<IdentityUser> userManager, IConfiguration configuration, IOptions<AppSettingsModel> options)
+    public AuthController(AuthService authService)
     {
-        _userManager = userManager;
-        _configuration = configuration;
-        _model = options.Value;
+        _authService = authService;
     }
 
     [HttpPost("login")]
@@ -28,44 +25,17 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login(InputClaimsModel inputClaims)
     {
 
-        if (string.IsNullOrEmpty(inputClaims.signInName) || string.IsNullOrEmpty(inputClaims.password))
+        if (string.IsNullOrEmpty(inputClaims.SignInName) || string.IsNullOrEmpty(inputClaims.Password))
             return StatusCode((int)HttpStatusCode.Conflict, 
                 new B2CResponseModel("UserName or Password cannot be empty.", HttpStatusCode.Conflict));
         
-        var outputClaims = new B2CResponseModel("", HttpStatusCode.OK);
         if (ModelState.IsValid)
         {
-            var user = _userManager.Users.FirstOrDefault(x => x.Email == inputClaims.signInName);
-           
-            if (user != null)
-            {
-                var isPasswordValid = await _userManager.CheckPasswordAsync(user, inputClaims.password);
-
-                if (isPasswordValid)
-                {
-                    try
-                    {
-                        outputClaims.needToMigrate = "local";
-                        outputClaims.newPassword = inputClaims.password;
-                        outputClaims.email = inputClaims.signInName;
-                        outputClaims.displayName = "Hiran";
-                        outputClaims.surName = "Herath";
-                        outputClaims.givenName = "Hiran Herath";
-                        return Ok(outputClaims);
-                    }
-                    catch (Exception ex)
-                    {
-                        outputClaims.needToMigrate = null;
-                        return Ok(outputClaims);
-                    }
-                }
-                return StatusCode((int)HttpStatusCode.Conflict,
-                    new B2CResponseModel("Password is incorrect", HttpStatusCode.Conflict));
-            }
-            outputClaims.needToMigrate = null;
-            return Ok(outputClaims);
+            var userClaim = _authService.UserLoginValidation(inputClaims);
+            return Ok(userClaim.Result);
         }
 
-        return Ok();
+        return StatusCode((int)HttpStatusCode.Conflict,
+            new B2CResponseModel("Validation error occured.", HttpStatusCode.Conflict));
     }
 }

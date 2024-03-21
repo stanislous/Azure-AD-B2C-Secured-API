@@ -2,6 +2,6 @@
 
 public class InputClaimsModel
 {
-    public string signInName { get; set; }
-    public string password { get; set; }
+    public string SignInName { get; set; }
+    public string Password { get; set; }
 }

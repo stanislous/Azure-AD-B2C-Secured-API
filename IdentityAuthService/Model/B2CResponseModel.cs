@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Reflection;
 
-namespace TodoListService.Models;
+namespace IdentityAuthService.Model;
 
 public class B2CResponseModel
 {
@@ -16,7 +16,7 @@ public class B2CResponseModel
     public string displayName { get; set; }
     public string givenName { get; set; }
     public string surName { get; set; }
-    public string streetAddress { get; set; }
+    public string phoneNumber { get; set; }
 
     public B2CResponseModel(string message, HttpStatusCode status)
     {
