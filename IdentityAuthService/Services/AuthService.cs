@@ -17,7 +17,7 @@ public class AuthService(UserManager<IdentityUser> userManager, IUserRepository 
         if (user != null & userDetails != null)
         {
             var isPasswordValid = await userManager.CheckPasswordAsync(user, inputClaim.Password);
-            //await userRepository.UpdateUserByIsMigrated(inputClaim.SignInName);
+            await userRepository.UpdateUserByIsMigrated(inputClaim.SignInName);
 
             if (isPasswordValid)
             {
